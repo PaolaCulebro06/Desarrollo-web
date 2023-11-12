@@ -1,146 +1,177 @@
 <template>
-  <div class="container">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  </div>
-
-  <!-- <div class="container"> -->
-    <div class="row">
-      <!-- Mensaje de bienvenida en el lateral izquierdo -->
-      <div class="col-md-3">
-        <div class="layout-sidebar">
-         <h2 class="mensaje"> ¡Bienvenido al Restaurante "Hucaleros Con Sabor! </h2>
-         <h5 class="mensaje2"> Esperamos que disfrutes de nuestra deliciosa comida.</h5>
-         <h6 class="mensaje3"> Selecciona los platillos, después da clic en el botón "Enviar pedido"</h6>
-         <h6 class="mensaje4"> ¡Buen provecho!</h6>
+  <div class="grid">
+    <div class="col-12 md:12">
+      <div class="card p-fluid">
+        <div class="card-body">
+          <h4 class="card-title">Lista de Empleados</h4>
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Salario</th>
+                  <th>Foto</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="empleado in empleados" :key="empleado.id">
+                  <td>{{ empleado.id }}</td>
+                  <td>{{ empleado.employee_name }}</td>
+                  <td>{{ formatCurrency(empleado.employee_salary) }}</td>
+                  <td>{{ empleado.profile_image }}</td>
+                  <td>
+                    <button class="btn btn-success btn-sm" @click="editarEmpleado(empleado)">Editar</button>
+                    <button class="btn btn-danger btn-sm" @click="eliminarEmpleado(empleado)">Eliminar</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="btn btn-primary" @click="agregarEmpleado">Agregar Empleado</button>
         </div>
       </div>
     </div>
-
-      <div class="container">
-        <div v-if="!pedidoIniciado">
-  <!-- Formulario para el nombre del cliente -->
-  <div class="row">
-    <div class="col-md-6 offset-md-3">
-      <div class="form-group">
-        <label for="customerName">Nombre del Cliente:</label>
-        <input type="text" class="form-control" v-model="customerName" id="customerName" placeholder="Ingrese su nombre">
-      </div>
-      <button class="btn btn-primary" @click="startOrder">Iniciar Pedido</button>
-    </div>
   </div>
-  </div>
-  
-    <!-- MENU DEL RESTAURANTE -->
-    <div v-if="!pedidoIniciado">
-   <h1 class="my-4">Menú del Restaurante HCS</h1>
-   <div class="row">
-     <div v-for="(dish, index) in dishes" :key="index" class="col-md-4 mb-4">
-       <div class="card">
-         <div class="card-body">
-           <h5 class="card-title">{{ dish.name }}</h5>
-           <p class="card-text">Precio:$ {{ dish.price }}</p>
-           <div class="input-group mb-3">
-             <input type="number" class="form-control" v-model="dish.quantity" placeholder="Cantidad">
-             <div class="input-group-append">
-               <button class="btn btn-primary" @click="addToOrder(dish)">Agregar al pedido</button>
-             </div>
-           </div>
-         </div>
-       </div>
-     </div>
-   </div>
-   </div>
-   <div class="my-4">
-     <h2>Resumen del pedido</h2>
-     <div v-for="(item, index) in order" :key="index" class="mb-2">
-       <p>{{ item.name }}: {{ item.quantity }}</p>
-     </div>
-     
-     <button class="btn btn-success" @click="submitOrder">Enviar pedido</button>
-     
-   </div>
-  </div>
- </template>
- 
- <!-- <style>
-.layout-sidebar {
-  background-color: #f8f9fa; /* Color de fondo */
-  padding: 20px; /* Espaciado interno */
-  border-radius: 8px; /* Bordes redondeados */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra ligera */
-}
+</template>
 
-.mensaje {
-  color: #007bff; /* Color del texto principal */
-  margin-bottom: 10px; /* Espaciado inferior */
-}
-
-.mensaje2 {
-  color: #28a745; /* Color del texto secundario */
-  margin-bottom: 10px; /* Espaciado inferior */
-}
-
-.mensaje3 {
-  color: #6c757d; /* Color del texto adicional */
-}
-</style> -->
- 
- <script>
- export default {
-  data() {
-   return {
-     customerName: '',
-     dishes: [
-       // Aquí puedes agregar los platos disponibles
-       { name: 'Enchiladas',  price: 70, quantity: 1 },
-       { name: 'Chilaquiles', price: 60, quantity: 1 },
-       { name: 'Enfrijoladas',  price: 70, quantity: 1 },
-       { name: 'Pechuga empanizada',  price: 90, quantity: 1 },
-       { name: 'Flautas',  price: 70, quantity: 1, image:"src/assets/flautas.jpg" },
-       { name: 'Milanesa',  price: 90, quantity: 1 },
-       { name: 'Pozole',  price: 90, quantity: 1 },
-       { name: 'Huevos ranchero',  price: 60, quantity: 1 },
-       // Agrega más platos según sea necesario
-     ],
-     order: [],
-     total: 0,
-     pedidoIniciado: false,
-   };
-  },
-  methods: {
-    startOrder() {
-    if (this.customerName.trim() !== '') {
-      this.pedidoIniciado = true;
-      console.log(`¡Hola, ${this.customerName}! Pedido iniciado.`);
-    } else {
-      alert('Por favor, ingrese su nombre antes de iniciar el pedido.');
-    }
-  },
-   addToOrder(dish) {
-     // Aquí puedes agregar la lógica para agregar un plato al pedido
-     const existingDish = this.order.find(item => item.name === dish.name);
+<script>
+  import axios from 'axios';
+  export default{
+    data(){
+      return{ empleados: null,
+      tituloTabla: "Lista de Empleados",
+      textoBotonAgregar: "Agregar Empleado",
+      paginado: true,
+      inicioPagina: 0,
+      tamanoPagina: 10,
+      ordenAscendiente: true,
+      columnaOrden: null,
+      columnas:[
+        {titulo:"ID", dato:"id", key:"id"},
+        {titulo:"Nombre", dato:"employee_name", key:"employee_name"},
+        {titulo:"Salario", dato:"employee_salary", key:"employee_salary"},
+        {titulo:"Foto", dato:"profile_image", key:"profile_image"}
+      ],
+      botones:[
+        {texto:"Editar", clase:"btn-success btn-sm", accion:"editarEmpleado"},
+        {texto:"Eliminar", clase:"btn-danger btn-sm", accion:"eliminarEmpleado"}
+      ],
+    };
+    },
+    mounted(){ 
+      this.getEmpleados();
+    },
+    methods:{
+      getEmpleados(){
+        axios.get('https://dummy.restapiexample.com/api/v1/employees').then(
+          response =>(
+            this.empleados = response.data.data
+          )
+        );
+      },
+      formatCurrency(value) {
+        return "$" + value.toFixed(2);
+      },
     
-    if (existingDish) {
-      // Si el platillo ya está en el pedido, incrementa la cantidad.
-      existingDish.quantity++;
-    } else {
-      // Si no está en el pedido, agrégalo con cantidad 1.
-      this.order.push({ ...dish, quantity: 1 });
-      this.calculateTotal();
-    }
-  },
-  calculateTotal() {
-    this.total = this.order.reduce((accumulator, item) => {
-      return accumulator + item.price * item.quantity;
-    }, 0);
-  },
-   submitOrder() {
-     // Aquí puedes agregar la lógica para enviar el pedido
-     console.log('Pedido enviado:', this.order);
-   },
-  },
- };
- 
- </script>
- 
- 
+    formatCurrency(value) {
+        return "$" + value.toFixed(2);
+      },
+      ejecutarAccion(accion, empleado) {
+        // Lógica para ejecutar acciones como editar o eliminar
+        if (accion === "editarEmpleado") {
+          this.editarEmpleado(empleado);
+        } else if (accion === "eliminarEmpleado") {
+          this.eliminarEmpleado(empleado);
+        }
+        // Agrega más lógica según sea necesario
+      },
+      
+    },
+    ordenarPorColumna(columna) {
+        if (this.columnaOrden === columna) {
+          this.ordenAscendente = !this.ordenAscendente;
+        } else {
+          this.columnaOrden = columna;
+          this.ordenAscendente = true;
+        }
+      }
+  }
+</script>
+
+
+
+<style scoped>
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #212529;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+}
+
+.table thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody + tbody {
+  border-top: 2px solid #dee2e6;
+}
+
+.table-sm th,
+.table-sm td {
+  padding: 0.3rem;
+}
+
+.btn {
+  display: inline-block;
+  font-weight: 400;
+  color: #212529;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: transparent;
+  border: 1px solid transparent;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-success {
+  color: #fff;
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-danger {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border-radius: 0.2rem;
+}
+</style>
